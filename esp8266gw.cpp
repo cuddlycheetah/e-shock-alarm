@@ -187,8 +187,13 @@ void askGeneralStatus() {
       client.publish("link/0x01/0x02/rftemp", mqttMessage);
       snprintf (mqttMessage, 50, "%d", packetGeneralStatusResponse.Packet.battery);
       client.publish("link/0x01/0x02/battery", mqttMessage);
+      // RoundTripTime
       snprintf (mqttMessage, 50, "%lld", roundTripTime);
       client.publish("link/0x01/0x02/rtt", mqttMessage);
+      //RSSI
+      snprintf (mqttMessage, 50, "%d", rf69.lastRssi());
+      client.publish("link/0x01/0x02/rssi", mqttMessage);
+      // Linkstate
       client.publish("link/0x01/0x02/linkstate", "UP");
     } else {
       Serial.println("No reply, linkstate is DOWN");
@@ -227,6 +232,10 @@ void sendShockCommand() {
       // RoundTripTime
       snprintf (mqttMessage, 50, "%lld", roundTripTime);
       client.publish("link/0x01/0x02/rtt", mqttMessage);
+      //RSSI
+      snprintf (mqttMessage, 50, "%d", rf69.lastRssi());
+      client.publish("link/0x01/0x02/rssi", mqttMessage);
+      // Linkstate
       client.publish("link/0x01/0x02/linkstate", "UP");
     } else {
       Serial.println("No reply, linkstate is DOWN");
