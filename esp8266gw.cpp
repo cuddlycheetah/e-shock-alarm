@@ -154,10 +154,11 @@ PacketShockCommandRequestUnion packetShockCommandRequest;
 #pragma region "0xAA Shock Command Response"
 struct __attribute__ ((packed)) PacketShockCommandResponse {
   unsigned long messageID;
+  bool shocked;
 };
 union PacketShockCommandResponseUnion {
   struct PacketShockCommandResponse Packet;
-  uint8_t Byte[4];
+  uint8_t Byte[5];
 };
 PacketShockCommandResponseUnion packetShockCommandResponse;
 #pragma endregion
@@ -221,7 +222,7 @@ void sendShockCommand() {
       uint64_t roundTripTime = micros64() - start;
       Serial.print("got reply from : 0x"); Serial.print(from, HEX); Serial.print(": "); array_to_string(buf, len, mqttMessage); Serial.println(mqttMessage);
       // Response MessageID
-      snprintf (mqttMessage, 50, "%ld", packetShockCommandResponse.Packet.messageID);
+      snprintf (mqttMessage, 50, "%ld %d", packetShockCommandResponse.Packet.messageID, packetShockCommandResponse.Packet.shocked ? 1 : 0);
       client.publish("link/0x01/0x02/shock/response", mqttMessage);
       // RoundTripTime
       snprintf (mqttMessage, 50, "%lld", roundTripTime);
@@ -258,7 +259,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   packetShockCommandRequest.Packet.pulseLength  = doc[1].as<unsigned short>();
   packetShockCommandRequest.Packet.pauseLength  = doc[2].as<unsigned short>();
   packetShockCommandRequest.Packet.repeatNum    = doc[3].as<unsigned char>();
-  sendShockCommand();
+  if (doc.size() == 4) sendShockCommand();
 }
 void loop() {
   if (!client.connected()) {
